@@ -1,8 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  labels:
   name: boundary-config
+  labels:
     {{- include "boundary-chart.labels" . | nindent 4 }}
   {{- with .Values.serviceAccount.annotations }}
   annotations:
