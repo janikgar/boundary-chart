@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "boundary-chart.fullname" . }}
+  labels:
+    {{- include "boundary-chart.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.apiPort }}
+      targetPort: api
+      protocol: TCP
+      name: api
+    - port: {{ .Values.service.clusterPort }}
+      targetPort: cluster
+      protocol: TCP
+      name: cluster
+    - port: {{ .Values.service.dataPort }}
+      targetPort: data
+      protocol: TCP
+      name: data
+  selector:
+    {{- include "boundary-chart.selectorLabels" . | nindent 4 }}

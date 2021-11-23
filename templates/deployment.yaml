@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "boundary-chart.fullname" . }}
+  labels:
+    {{- include "boundary-chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "boundary-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "boundary-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "boundary-chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: boundary-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+            - /bin/sh
+            - "-c"
+          args: boundary database init -config /boundary/boundary.hcl
+          env:
+            - name: BOUNDARY_PG_URL
+              value: postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable
+            - name: HOSTNAME
+              value: boundary
+          volumeMounts:
+            - name: boundary-config
+              mountPath: /boundary
+              readOnly: true
+      containers:
+        - name: {{ .Chart.Name }}
+          command:
+            - /bin/sh
+            - "-c"
+          args: boundary server -config /boundary/boundary.hcl
+          env:
+            - name: BOUNDARY_PG_URL
+              value: postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable
+            - name: HOSTNAME
+              value: boundary
+          volumeMounts:
+            - name: boundary-config
+              mountPath: /boundary
+              readOnly: true
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: api
+              containerPort: {{ .Values.service.apiPort }}
+              protocol: TCP
+            - name: cluster
+              containerPort: {{ .Values.service.clusterPort }}
+              protocol: TCP
+            - name: data
+              containerPort: {{ .Values.service.dataPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      volumes:
+        - configMap:
+            name: boundary-config
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
