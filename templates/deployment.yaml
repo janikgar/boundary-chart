@@ -33,7 +33,8 @@ spec:
           command:
             - /bin/sh
             - "-c"
-          args: boundary database init -config /boundary/boundary.hcl
+          args:
+            - boundary database init -config /boundary/boundary.hcl
           env:
             - name: BOUNDARY_PG_URL
               value: postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable
@@ -48,7 +49,8 @@ spec:
           command:
             - /bin/sh
             - "-c"
-          args: boundary server -config /boundary/boundary.hcl
+          args:
+            - boundary server -config /boundary/boundary.hcl
           env:
             - name: BOUNDARY_PG_URL
               value: postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable
