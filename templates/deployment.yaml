@@ -34,10 +34,10 @@ spec:
             - /bin/sh
             - "-c"
           args:
-            - boundary database init -config /boundary/boundary.hcl
+            - boundary database init -config /boundary/boundary-config.hcl
           env:
             - name: BOUNDARY_PG_URL
-              value: postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable
+              value: "{{ .Values.dbString }}"
             - name: HOSTNAME
               value: boundary
           volumeMounts:
@@ -50,10 +50,10 @@ spec:
             - /bin/sh
             - "-c"
           args:
-            - boundary server -config /boundary/boundary.hcl
+            - boundary server -config /boundary/boundary-config.hcl
           env:
             - name: BOUNDARY_PG_URL
-              value: postgresql://postgres:postgres@postgres:5432/boundary?sslmode=disable
+              value: "{{ .Values.dbString }}"
             - name: HOSTNAME
               value: boundary
           volumeMounts:
@@ -84,10 +84,11 @@ spec:
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
       volumes:
-        - configMap:
+        - name: boundary-config
+          configMap:
             name: boundary-config
+      {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}

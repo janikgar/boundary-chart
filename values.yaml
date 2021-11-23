@@ -5,14 +5,16 @@
 replicaCount: 1
 
 image:
-  repository: hashicorp/boundary
+  repository: janikgar/boundary
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "0.7.1"
 
 imagePullSecrets: []
 nameOverride: "boundary"
 fullnameOverride: "boundary"
+
+dbString: postgresql://postgres:postgres@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -28,12 +30,12 @@ podAnnotations: {}
 podSecurityContext: {}
   # fsGroup: 2000
 
-securityContext:
+securityContext: {}
   # capabilities:
   #   drop:
   #   - ALL
   # readOnlyRootFilesystem: true
-  runAsNonRoot: true
+  # runAsNonRoot: true
   # runAsUser: 1000
 
 service:
