@@ -10,9 +10,9 @@ controller {
 worker {
   name = "kubernetes-worker"
   description = "A worker for a kubernetes demo"
-  address = "localhost"
-  controllers = ["localhost"]
-  public_addr = "localhost"
+  address = "0.0.0.0"
+  controllers = ["0.0.0.0"]
+  public_addr = "0.0.0.0"
 }
 listener "tcp" {
   address = "0.0.0.0"

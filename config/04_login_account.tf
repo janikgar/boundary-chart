@@ -1,5 +1,5 @@
 resource "boundary_account" "myuser" {
-  name           = "myuser"
+  name           = "jacob"
   description    = "User account for my user"
   type           = "password"
   login_name     = "jacob"
