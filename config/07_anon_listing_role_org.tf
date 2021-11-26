@@ -5,6 +5,6 @@ resource "boundary_role" "org_anon_listing" {
     "type=scope;actions=list",
     "id={{account.id}};actions=read,change-password"
   ]
-  principal_ids = ["u_anon"]
+  principal_ids = ["u_anon", boundary_user.myuser.id]
 }
 

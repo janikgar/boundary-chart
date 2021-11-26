@@ -5,6 +5,6 @@ resource "boundary_role" "global_anon_listing" {
     "id=*;type=scope;actions=list,no-op",
     "id={{account.id}};actions=read,change-password"
   ]
-  principal_ids = ["u_anon"]
+  principal_ids = ["u_anon", boundary_user.myuser.id]
 }
 
