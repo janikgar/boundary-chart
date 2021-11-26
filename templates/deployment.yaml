@@ -65,15 +65,13 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: api
-              containerPort: {{ .Values.service.apiPort }}
+            {{- range .Values.service }}
+            {{- range .ports }}
+            - name: {{ .name }}
+              containerPort: {{ .number }}
               protocol: TCP
-            - name: cluster
-              containerPort: {{ .Values.service.clusterPort }}
-              protocol: TCP
-            - name: data
-              containerPort: {{ .Values.service.dataPort }}
-              protocol: TCP
+            {{- end }}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /

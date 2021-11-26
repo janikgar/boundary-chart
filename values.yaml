@@ -39,10 +39,16 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  apiPort: 9200
-  clusterPort: 9201
-  dataPort: 9202
+  - type: ClusterIP
+    ports:
+      - name: api
+        number: 9200
+      - name: cluster
+        number: 9201
+  - type: NodePort
+    ports:
+      - name: data
+        number: 9202
 
 ingress:
   enabled: true
@@ -55,6 +61,7 @@ ingress:
       paths:
         - path: /
           pathType: ImplementationSpecific
+          port: api
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:

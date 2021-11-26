@@ -1,23 +1,27 @@
+{{- $fullName := include "boundary-chart.fullname" . }}
+{{- $labels := include "boundary-chart.labels" . }}
+{{- $selectorLabels := include "boundary-chart.selectorLabels" . }}
+{{- range $index, $service := .Values.service }}
+---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "boundary-chart.fullname" . }}
+  name: {{ $fullName }}-{{ $index }}
   labels:
-    {{- include "boundary-chart.labels" . | nindent 4 }}
+    {{- $labels | nindent 4 }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ $service.type }}
+  {{- $type := $service.type }}
   ports:
-    - port: {{ .Values.service.apiPort }}
-      targetPort: api
+    {{- range $service.ports }}
+    - port: {{ .number }}
+      targetPort: {{ .name }}
+      {{- if eq $type "NodePort" }}
+      nodePort: 30202
+      {{- end }}
       protocol: TCP
-      name: api
-    - port: {{ .Values.service.clusterPort }}
-      targetPort: cluster
-      protocol: TCP
-      name: cluster
-    - port: {{ .Values.service.dataPort }}
-      targetPort: data
-      protocol: TCP
-      name: data
+      name: {{ .name }}
+    {{- end }}
   selector:
-    {{- include "boundary-chart.selectorLabels" . | nindent 4 }}
+    {{- $selectorLabels | nindent 4 }}
+{{- end }}
