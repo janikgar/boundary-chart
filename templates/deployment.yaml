@@ -13,10 +13,27 @@ spec:
       {{- include "boundary-chart.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
+      {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- $credPath := .Values.vault.database.vaultCredPath }}
+      {{- $dbRole := .Values.vault.database.vaultDbRole }}
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-status: "update"
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-pre-populate: "true"
+        vault.hashicorp.com/role: {{ $dbRole | quote }}
+        vault.hashicorp.com/agent-inject-secret-database-creds-admin.txt: "{{ $credPath }}-admin"
+        vault.hashicorp.com/agent-inject-template-database-creds-admin.txt: |
+          {{- printf "{{- with secret " | nindent 10 }}"{{ $credPath }}-admin"{{ printf " -}}" }}
+          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable" | nindent 10 }}
+          {{- printf "{{- end -}}" | nindent 10 }}
+        vault.hashicorp.com/agent-inject-secret-database-creds.txt: "{{ $credPath }}"
+        vault.hashicorp.com/agent-inject-template-database-creds.txt: |
+          {{- printf "{{- with secret " | nindent 10 }}{{ $credPath | quote }}{{ printf " -}}" }}
+          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable" | nindent 10 }}
+          {{- printf "{{- end -}}" | nindent 10 }}
       labels:
         {{- include "boundary-chart.selectorLabels" . | nindent 8 }}
     spec:
@@ -34,12 +51,17 @@ spec:
             - /bin/sh
             - "-c"
           args:
-            - boundary database init -config /boundary/boundary-config.hcl
+            - boundary database migrate -config /boundary/boundary-config-admin.hcl || boundary database init -skip-auth-method-creation -skip-host-resources-creation -skip-scopes-creation -skip-target-creation -config /boundary/boundary-config-admin.hcl || sleep 10000
           env:
-            - name: BOUNDARY_PG_URL
-              value: "{{ .Values.dbString }}"
             - name: HOSTNAME
               value: boundary
+            {{- range .Values.podSecrets }}
+            - name: {{ .keyName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .keyName }}
+            {{- end }}
           volumeMounts:
             - name: boundary-config
               mountPath: /boundary
@@ -52,10 +74,15 @@ spec:
           args:
             - boundary server -config /boundary/boundary-config.hcl
           env:
-            - name: BOUNDARY_PG_URL
-              value: "{{ .Values.dbString }}"
             - name: HOSTNAME
               value: boundary
+            {{- range .Values.podSecrets }}
+            - name: {{ .keyName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .keyName }}
+            {{- end }}
           volumeMounts:
             - name: boundary-config
               mountPath: /boundary

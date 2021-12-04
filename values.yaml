@@ -15,6 +15,25 @@ nameOverride: "boundary"
 fullnameOverride: "boundary"
 
 dbString: postgresql://postgres:postgres@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable
+publicAddress: 192.168.1.103
+publicPort: 30202
+
+vault:
+  enabled: true
+  # Use form `protocol://fqdn:port`
+  fqdn: https://vault.home.lan:443
+  mountPath: local-kms
+  tlsSkipVerify: true
+  # Select whether or not to mount in an externally-created token for management of Vault
+  managementToken:
+    enabled: true
+    envName: VAULT_TOKEN
+    secretName: vault-secret
+  # Pull DB credentials from Vault
+  database:
+    enabled: true
+    vaultCredPath: postgres/creds/boundary-db
+    vaultDbRole: boundary
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -26,6 +45,10 @@ serviceAccount:
   name: ""
 
 podAnnotations: {}
+
+podSecrets:
+  - secretName: vault-secret
+    keyName: VAULT_TOKEN
 
 podSecurityContext: {}
   # fsGroup: 2000

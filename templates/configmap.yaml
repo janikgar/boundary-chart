@@ -10,4 +10,105 @@ metadata:
   {{- end }}
   creationTimestamp: null
 data:
-{{ (.Files.Glob "boundary-config.hcl").AsConfig | indent 4 }}
+  boundary-config-admin.hcl:
+    disable_mlock = true
+    log_format    = "standard"
+    controller {
+      name        = "kubernetes-controller"
+      description = "Boundary controller"
+      database {
+        url = "file:///vault/secrets/database-creds-admin.txt"
+      }
+      public_cluster_addr = "localhost"
+    }
+    worker {
+      name        = "kubernetes-worker"
+      description = "Boundary worker"
+      address     = "localhost"
+      controllers = ["localhost"]
+      public_addr = "{{ .Values.publicAddress }}:{{ .Values.publicPort }}"
+    }
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "api"
+      tls_disable = true
+    }
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "cluster"
+      tls_disable = true
+    }
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "proxy"
+      tls_disable = true
+    }
+    {{- if .Values.vault.enabled }}
+    {{- $fqdn := .Values.vault.fqdn }}
+    {{- $mountPath := .Values.vault.mountPath }}
+    {{- $tlsSkip := .Values.vault.tlsSkipVerify }}
+    {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
+    kms "transit" {
+      purpose         = "{{ $purpose }}"
+      address         = "{{ $fqdn }}"
+      disable_renewal = false
+
+      key_name   = "{{ $purpose }}"
+      mount_path = "{{ $mountPath }}"
+      {{- if $tlsSkip }}
+      tls_skip_verify = true
+      {{- end }}
+    }
+    {{- end }}
+    {{- end }}
+  boundary-config.hcl: |
+    disable_mlock = true
+    log_format    = "standard"
+    controller {
+      name        = "kubernetes-controller"
+      description = "Boundary controller"
+      database {
+        url = "file:///vault/secrets/database-creds.txt"
+      }
+      public_cluster_addr = "localhost"
+    }
+    worker {
+      name        = "kubernetes-worker"
+      description = "Boundary worker"
+      address     = "localhost"
+      controllers = ["localhost"]
+      public_addr = "{{ .Values.publicAddress }}:{{ .Values.publicPort }}"
+    }
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "api"
+      tls_disable = true
+    }
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "cluster"
+      tls_disable = true
+    }
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "proxy"
+      tls_disable = true
+    }
+    {{- if .Values.vault.enabled }}
+    {{- $fqdn := .Values.vault.fqdn }}
+    {{- $mountPath := .Values.vault.mountPath }}
+    {{- $tlsSkip := .Values.vault.tlsSkipVerify }}
+    {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
+    kms "transit" {
+      purpose         = "{{ $purpose }}"
+      address         = "{{ $fqdn }}"
+      disable_renewal = false
+
+      key_name   = "{{ $purpose }}"
+      mount_path = "{{ $mountPath }}"
+      {{- if $tlsSkip }}
+      tls_skip_verify = true
+      {{- end }}
+    }
+    {{- end }}
+    {{- end }}
