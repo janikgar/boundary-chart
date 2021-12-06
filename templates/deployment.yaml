@@ -1,0 +1,133 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "boundary-chart.fullname" . }}
+  labels:
+    {{- include "boundary-chart.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "boundary-chart.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.vault.enabled }}
+      {{- $credPath := .Values.vault.database.vaultCredPath }}
+      {{- $dbRole := .Values.vault.database.vaultDbRole }}
+      {{- $dbUrl := .Values.database.url }}
+      {{- $dbPort := .Values.database.port }}
+      {{- $dbName := .Values.database.dbName }}
+      {{- $dbSsl := .Values.database.ssl }}
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-inject-status: "update"
+        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-pre-populate: "true"
+        vault.hashicorp.com/role: {{ $dbRole | quote }}
+        vault.hashicorp.com/agent-inject-secret-database-creds-admin.txt: "{{ $credPath }}-admin"
+        vault.hashicorp.com/agent-inject-template-database-creds-admin.txt: |
+          {{- printf "{{- with secret " | nindent 10 }}"{{ $credPath }}-admin"{{ printf " -}}" }}
+          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@" | nindent 10}}{{ $dbUrl }}:{{ $dbPort }}/{{ $dbName }}{{- if ne $dbSsl true }}?sslmode=disable{{- end }}
+          {{- printf "{{- end -}}" | nindent 10 }}
+        vault.hashicorp.com/agent-inject-secret-database-creds.txt: "{{ $credPath }}"
+        vault.hashicorp.com/agent-inject-template-database-creds.txt: |
+          {{- printf "{{- with secret " | nindent 10 }}{{ $credPath | quote }}{{ printf " -}}" }}
+          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}" | nindent 10 }}@{{ $dbUrl }}:{{ $dbPort }}/{{ $dbName }}{{- if ne $dbSsl true }}?sslmode=disable{{- end }}
+          {{- printf "{{- end -}}" | nindent 10 }}
+      {{- end }}
+      labels:
+        {{- include "boundary-chart.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "boundary-chart.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: boundary-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command:
+            - /bin/sh
+            - "-c"
+          args:
+            - boundary database migrate -config /boundary/boundary-config-admin.hcl || boundary database init -skip-auth-method-creation -skip-host-resources-creation -skip-scopes-creation -skip-target-creation -config /boundary/boundary-config-admin.hcl || sleep 10000
+          env:
+            - name: HOSTNAME
+              value: boundary
+            {{- range .Values.podSecrets }}
+            - name: {{ .keyName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .keyName }}
+            {{- end }}
+          volumeMounts:
+            - name: boundary-config
+              mountPath: /boundary
+              readOnly: true
+      containers:
+        - name: {{ .Chart.Name }}
+          command:
+            - /bin/sh
+            - "-c"
+          args:
+            - boundary server -config /boundary/boundary-config.hcl
+          env:
+            - name: HOSTNAME
+              value: boundary
+            {{- range .Values.podSecrets }}
+            - name: {{ .keyName }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .secretName }}
+                  key: {{ .keyName }}
+            {{- end }}
+          volumeMounts:
+            - name: boundary-config
+              mountPath: /boundary
+              readOnly: true
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            {{- range .Values.service }}
+            {{- range .ports }}
+            - name: {{ .name }}
+              containerPort: {{ .number }}
+              protocol: TCP
+            {{- end }}
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: api
+          readinessProbe:
+            httpGet:
+              path: /
+              port: api
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: boundary-config
+          configMap:
+            name: boundary-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

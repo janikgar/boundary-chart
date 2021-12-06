@@ -1,0 +1,5 @@
+.terraform/
+*.lock.hcl
+.env
+terraform/
+local-values.yaml
