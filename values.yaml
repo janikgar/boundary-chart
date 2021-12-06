@@ -14,7 +14,7 @@ imagePullSecrets: []
 nameOverride: "boundary"
 fullnameOverride: "boundary"
 
-publicAddress: 192.168.1.103
+publicAddress: 192.168.1.1
 publicPort: 30202
 
 database:
