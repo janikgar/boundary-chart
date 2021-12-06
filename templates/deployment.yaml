@@ -17,8 +17,13 @@ spec:
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.vault.enabled }}
       {{- $credPath := .Values.vault.database.vaultCredPath }}
       {{- $dbRole := .Values.vault.database.vaultDbRole }}
+      {{- $dbUrl := .Values.database.url }}
+      {{- $dbPort := .Values.database.port }}
+      {{- $dbName := .Values.database.dbName }}
+      {{- $dbSsl := .Values.database.ssl }}
         vault.hashicorp.com/agent-inject: "true"
         vault.hashicorp.com/agent-inject-status: "update"
         vault.hashicorp.com/agent-init-first: "true"
@@ -27,13 +32,14 @@ spec:
         vault.hashicorp.com/agent-inject-secret-database-creds-admin.txt: "{{ $credPath }}-admin"
         vault.hashicorp.com/agent-inject-template-database-creds-admin.txt: |
           {{- printf "{{- with secret " | nindent 10 }}"{{ $credPath }}-admin"{{ printf " -}}" }}
-          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable" | nindent 10 }}
+          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@" | nindent 10}}{{ $dbUrl }}:{{ $dbPort }}/{{ $dbName }}{{- if ne $dbSsl true }}?sslmode=disable{{- end }}
           {{- printf "{{- end -}}" | nindent 10 }}
         vault.hashicorp.com/agent-inject-secret-database-creds.txt: "{{ $credPath }}"
         vault.hashicorp.com/agent-inject-template-database-creds.txt: |
           {{- printf "{{- with secret " | nindent 10 }}{{ $credPath | quote }}{{ printf " -}}" }}
-          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable" | nindent 10 }}
+          {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}" | nindent 10 }}@{{ $dbUrl }}:{{ $dbPort }}/{{ $dbName }}{{- if ne $dbSsl true }}?sslmode=disable{{- end }}
           {{- printf "{{- end -}}" | nindent 10 }}
+      {{- end }}
       labels:
         {{- include "boundary-chart.selectorLabels" . | nindent 8 }}
     spec:

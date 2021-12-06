@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: janikgar/boundary
+  repository: hashicorp/boundary
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "0.7.1"
@@ -14,12 +14,26 @@ imagePullSecrets: []
 nameOverride: "boundary"
 fullnameOverride: "boundary"
 
-dbString: postgresql://postgres:postgres@postgresql.postgresql.svc.cluster.local:5432/boundary?sslmode=disable
 publicAddress: 192.168.1.103
 publicPort: 30202
 
-vault:
+database:
+  url: postgresql.postgresql.svc.cluster.local
+  port: 5432
+  dbName: boundary
+  ssl: false
+  username: postgres
+  password: postgres
+
+aead:
   enabled: true
+  keys:
+    root: D0vmvzf8l+C709nVfEH3hgBCj6IF/1eb9kCTYTtnDVc=
+    recovery: Ivj8Si8UQBp+Zm2lLbUDTxOGikE8rSo6QihCjWSTXqY=
+    worker-auth: 8Aj2j2JpFmY1WdjKcmETyYwUi7njP74MLVXWNov4rZ8=
+
+vault:
+  enabled: false
   # Use form `protocol://fqdn:port`
   fqdn: https://vault.home.lan:443
   mountPath: local-kms

@@ -10,14 +10,18 @@ metadata:
   {{- end }}
   creationTimestamp: null
 data:
-  boundary-config-admin.hcl:
+  boundary-config-admin.hcl: |
     disable_mlock = true
     log_format    = "standard"
     controller {
       name        = "kubernetes-controller"
       description = "Boundary controller"
       database {
+      {{- if .Values.vault.enabled }}
         url = "file:///vault/secrets/database-creds-admin.txt"
+      {{- else }}
+        url = "postgresql://{{.Values.database.username}}:{{.Values.database.password}}@{{ .Values.database.url }}:{{ .Values.database.port}}/{{.Values.database.dbName}}{{- if ne .Values.database.ssl true }}?sslmode=disable{{- end }}"
+      {{- end }}
       }
       public_cluster_addr = "localhost"
     }
@@ -58,6 +62,15 @@ data:
       {{- if $tlsSkip }}
       tls_skip_verify = true
       {{- end }}
+    }
+    {{- end }}
+    {{- else }}
+    {{- range $purpose, $key := .Values.aead.keys }}
+    kms "aead" {
+      purpose = "{{ $purpose }}"
+      key_id = "global_{{ $purpose }}"
+      aead_type = "aes-gcm"
+      key = "{{ $key }}"
     }
     {{- end }}
     {{- end }}
@@ -68,7 +81,11 @@ data:
       name        = "kubernetes-controller"
       description = "Boundary controller"
       database {
+      {{- if .Values.vault.enabled }}
         url = "file:///vault/secrets/database-creds.txt"
+      {{- else }}
+        url = "postgresql://{{.Values.database.username}}:{{.Values.database.password}}@{{ .Values.database.url }}:{{ .Values.database.port}}/{{.Values.database.dbName}}{{- if ne .Values.database.ssl true }}?sslmode=disable{{- end }}"
+      {{- end }}
       }
       public_cluster_addr = "localhost"
     }
@@ -109,6 +126,15 @@ data:
       {{- if $tlsSkip }}
       tls_skip_verify = true
       {{- end }}
+    }
+    {{- end }}
+    {{- else }}
+    {{- range $purpose, $key := .Values.aead.keys }}
+    kms "aead" {
+      purpose = "{{ $purpose }}"
+      key_id = "global_{{ $purpose }}"
+      aead_type = "aes-gcm"
+      key = "{{ $key }}"
     }
     {{- end }}
     {{- end }}
