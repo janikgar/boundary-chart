@@ -1,6 +1,8 @@
 # boundary-chart
 Helm chart for Hashicorp Boundary
 
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/boundary-chart)](https://artifacthub.io/packages/search?repo=boundary-chart)
+
 ## Disclaimer
 This is a work in progress. Currently, this allows two main configurations of Boundary, based on the KMS key configuration.
 
