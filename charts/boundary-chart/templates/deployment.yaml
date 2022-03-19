@@ -19,6 +19,7 @@ spec:
       {{- end }}
       {{- if .Values.vault.enabled }}
       {{- $credPath := .Values.vault.database.vaultCredPath }}
+      {{- $adminCredPath := .Values.vault.database.vaultAdminCredPath }}
       {{- $dbRole := .Values.vault.database.vaultDbRole }}
       {{- $dbUrl := .Values.database.url }}
       {{- $dbPort := .Values.database.port }}
@@ -29,9 +30,9 @@ spec:
         vault.hashicorp.com/agent-init-first: "true"
         vault.hashicorp.com/agent-pre-populate: "true"
         vault.hashicorp.com/role: {{ $dbRole | quote }}
-        vault.hashicorp.com/agent-inject-secret-database-creds-admin.txt: "{{ $credPath }}-admin"
+        vault.hashicorp.com/agent-inject-secret-database-creds-admin.txt: "{{ $adminCredPath }}"
         vault.hashicorp.com/agent-inject-template-database-creds-admin.txt: |
-          {{- printf "{{- with secret " | nindent 10 }}"{{ $credPath }}-admin"{{ printf " -}}" }}
+          {{- printf "{{- with secret " | nindent 10 }}"{{ $adminCredPath }}"{{ printf " -}}" }}
           {{- printf "postgresql://{{ .Data.username }}:{{ .Data.password }}@" | nindent 10}}{{ $dbUrl }}:{{ $dbPort }}/{{ $dbName }}{{- if ne $dbSsl true }}?sslmode=disable{{- end }}
           {{- printf "{{- end -}}" | nindent 10 }}
         vault.hashicorp.com/agent-inject-secret-database-creds.txt: "{{ $credPath }}"
