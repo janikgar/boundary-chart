@@ -46,6 +46,9 @@ vault:
   # Pull DB credentials from Vault
   database:
     enabled: true
+    # admin creds
+    vaultAdminCredPath: postgres/static-creds/boundary-db
+    # boundary creds
     vaultCredPath: postgres/creds/boundary-db
     vaultDbRole: boundary
 
