@@ -86,6 +86,10 @@ service:
       - name: cluster
         number: 9201
   - type: NodePort
+    # Annotations to add to the service of type LoadBalancer
+    annotations: {}
+    # IP whitelisting for service of type LoadBalancer
+    loadBalancerSourceRanges: []
     ports:
       - name: data
         number: 9202
