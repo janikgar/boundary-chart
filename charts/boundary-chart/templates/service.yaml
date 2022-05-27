@@ -10,6 +10,12 @@ metadata:
   name: {{ $fullName }}-{{ $index }}
   labels:
     {{- $labels | nindent 4 }}
+{{- if $service.annotations }}
+  annotations:
+  {{- range $key, $value := $service.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}
 spec:
   type: {{ $service.type }}
   {{- $type := $service.type }}
@@ -23,6 +29,10 @@ spec:
       protocol: TCP
       name: {{ .name }}
     {{- end }}
+{{- if $service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+{{ toYaml $service.loadBalancerSourceRanges | indent 4 }}
+{{- end }}
   selector:
     {{- $selectorLabels | nindent 4 }}
 {{- end }}
