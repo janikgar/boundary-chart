@@ -40,6 +40,9 @@ helm.sh/chart: {{ include "boundary-chart.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- range $key, $value := .Values.extraLabels }}
+{{ $key }}: {{ $value | quote }}
+{{- end }}
 {{- end }}
 
 {{/*
