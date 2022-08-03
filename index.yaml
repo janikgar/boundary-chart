@@ -3,6 +3,16 @@ entries:
   boundary:
   - apiVersion: v2
     appVersion: 0.7.1
+    created: "2022-08-03T03:46:05.986678403Z"
+    description: A Helm chart for HashiCorp Boundary
+    digest: 8dffce4df04556dc251060dc62aeb0156d68809ef64409e4cfa4536f41b47e56
+    name: boundary
+    type: application
+    urls:
+    - https://github.com/janikgar/boundary-chart/releases/download/boundary-0.2.4/boundary-0.2.4.tgz
+    version: 0.2.4
+  - apiVersion: v2
+    appVersion: 0.7.1
     created: "2022-05-27T22:49:11.551450689Z"
     description: A Helm chart for HashiCorp Boundary
     digest: 6840b5db71df21d2097face13d58b1e708d95ccfeef9d5d6610bae88ec5bc6ac
@@ -41,4 +51,4 @@ entries:
     urls:
     - https://github.com/janikgar/boundary-chart/releases/download/boundary-0.2.0/boundary-0.2.0.tgz
     version: 0.2.0
-generated: "2022-05-27T22:49:11.551465189Z"
+generated: "2022-08-03T03:46:05.986694203Z"
