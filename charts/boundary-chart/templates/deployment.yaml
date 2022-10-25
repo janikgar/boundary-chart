@@ -102,12 +102,17 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            {{- range .Values.service }}
+            {{- range concat .Values.service }}
             {{- range .ports }}
             - name: {{ .name }}
               containerPort: {{ .number }}
               protocol: TCP
             {{- end }}
+            {{- end }}
+            {{- if .Values.metrics.enabled }}
+            - name: {{ .Values.metrics.name }}
+              containerPort: {{ .Values.metrics.port }}
+              protocol: TCP
             {{- end }}
           livenessProbe:
             httpGet:
