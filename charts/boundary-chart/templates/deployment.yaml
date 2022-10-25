@@ -102,7 +102,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            {{- range concat .Values.service }}
+            {{- range .Values.service }}
             {{- range .ports }}
             - name: {{ .name }}
               containerPort: {{ .number }}
