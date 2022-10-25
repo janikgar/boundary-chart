@@ -17,6 +17,11 @@ spec:
       {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.metrics.enabled }}
+        prometheus.io/path: {{ .Values.metrics.path }}
+        prometheus.io/port: {{ .Values.metrics.port | quote }}
+        prometheus.io/scrape: "true"
+      {{- end }}
       {{- if .Values.vault.enabled }}
       {{- $credPath := .Values.vault.database.vaultCredPath }}
       {{- $adminCredPath := .Values.vault.database.vaultAdminCredPath }}
