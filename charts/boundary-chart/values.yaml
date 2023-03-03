@@ -58,6 +58,13 @@ vault:
     vaultCredPath: postgres/creds/boundary-db
     vaultDbRole: boundary
 
+# set true to enable prometheus metrics
+metrics:
+  enabled: false
+  name: metrics
+  port: 9203
+  path: /metrics
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true

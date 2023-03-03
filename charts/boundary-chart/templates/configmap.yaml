@@ -111,6 +111,13 @@ data:
       purpose     = "proxy"
       tls_disable = true
     }
+    {{- if .Values.metrics.enabled }}
+    listener "tcp" {
+      address     = "0.0.0.0"
+      purpose     = "ops"
+      tls_disable = true
+    }
+    {{- end }}
     {{- if .Values.vault.enabled }}
     {{- $fqdn := .Values.vault.fqdn }}
     {{- $mountPath := .Values.vault.mountPath }}
