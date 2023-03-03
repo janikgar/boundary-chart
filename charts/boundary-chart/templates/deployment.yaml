@@ -54,6 +54,7 @@ spec:
       serviceAccountName: {{ include "boundary-chart.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.initialise_boundary.enabled }}
       initContainers:
         - name: boundary-init
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -76,6 +77,7 @@ spec:
             - name: boundary-config
               mountPath: /boundary
               readOnly: true
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           command:
