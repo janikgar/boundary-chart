@@ -4,7 +4,7 @@
 
 replicaCount: 1
 
-initialise_boundary: 
+initialiseBoundary: 
   # Whether to create boundary-init container to run database migration
   # This is useful when it's required to avoid running database migration on pod restart
   # Post upgrade re-deploy with `false`
