@@ -118,6 +118,34 @@ data:
       tls_disable = true
     }
     {{- end }}
+    {{- if .Values.events.enabled }}
+    events {
+      audit_enabled = {{ .Values.events.audit }}
+      observations_enabled = {{ .Values.events.observations }}
+      sysevents_enabled = {{ .Values.events.sysevents }}
+      {{- range $stderr_sink := .Values.events.sink.stderr }}
+      sink "stderr" {
+        name = {{ $stderr_sink.name }}
+        description = {{ $stderr_sink.description }}
+        event_types = {{ $stderr_sink.event_types }}
+        format = {{ $stderr_sink.format | default "hclog-json" }}
+        audit_config {
+          audit_filter_overrides {
+          sensitive = "redact"
+          secret = "redact"
+        }
+      }
+      {{- end }}
+      {{- if and (eq (.Values.events.enabled | toString) "true" ) (eq (len .Values.events.sink) 0 ) }}
+      sink "stderr" {
+        name = "all-events"
+        description = "All events sent to stderr (default sink)"
+        event_types = ["*"]
+        format = "hclog-json"
+      }
+      {{- end }}
+    }
+    {{- end }}
     {{- if .Values.vault.enabled }}
     {{- $fqdn := .Values.vault.fqdn }}
     {{- $mountPath := .Values.vault.mountPath }}

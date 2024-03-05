@@ -38,6 +38,20 @@ aead:
     recovery: Ivj8Si8UQBp+Zm2lLbUDTxOGikE8rSo6QihCjWSTXqY=
     worker-auth: 8Aj2j2JpFmY1WdjKcmETyYwUi7njP74MLVXWNov4rZ8=
 
+events:
+  enabled: false
+
+  audit: false
+  observations: false
+  sysevents: false
+
+  sink: {}
+    # stderr:
+    #   - name:
+    #     description: "sink description"
+    #     event_types:
+    #     format: "hclog-json"
+
 vault:
   enabled: false
   # Use form `protocol://fqdn:port`
