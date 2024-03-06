@@ -47,6 +47,38 @@ data:
       purpose     = "proxy"
       tls_disable = true
     }
+    {{- if .Values.events.enabled }}
+    events {
+      audit_enabled = {{ .Values.events.audit }}
+      observations_enabled = {{ .Values.events.observations }}
+      sysevents_enabled = {{ .Values.events.sysevents }}
+      {{- range $stderr_sink := .Values.events.sink.stderr }}
+      sink "stderr" {
+        name = {{ $stderr_sink.name | quote }}
+        description = {{ $stderr_sink.description | quote  }}
+        event_types = {{ $stderr_sink.event_types }}
+        format = {{ $stderr_sink.format | default "hclog-json" | quote }}
+        {{- if (and (hasKey $stderr_sink "audit_filter_overrides")) }}
+        audit_config {
+          audit_filter_overrides {
+            {{- range $k, $v := $stderr_sink.audit_filter_overrides }}
+            {{ $k }} = {{ $v | quote }}
+            {{- end }}
+          }
+        }
+        {{- end }}
+      }
+      {{- end }}
+      {{- if and (eq (.Values.events.enabled | toString) "true" ) (eq (len .Values.events.sink) 0 ) }}
+      sink "stderr" {
+        name = "default"
+        description = "All events sent to stderr (default sink)"
+        event_types = ["*"]
+        format = "hclog-json"
+      }
+      {{- end }}
+    }
+    {{- end }}
     {{- if .Values.vault.enabled }}
     {{- $fqdn := .Values.vault.fqdn }}
     {{- $mountPath := .Values.vault.mountPath }}
@@ -129,17 +161,20 @@ data:
         description = {{ $stderr_sink.description | quote  }}
         event_types = {{ $stderr_sink.event_types }}
         format = {{ $stderr_sink.format | default "hclog-json" | quote }}
+        {{- if (and (hasKey $stderr_sink "audit_filter_overrides")) }}
         audit_config {
           audit_filter_overrides {
-            sensitive = ""
-            secret = "redact"
+            {{- range $k, $v := $stderr_sink.audit_filter_overrides }}
+            {{ $k }} = {{ $v | quote }}
+            {{- end }}
           }
         }
+        {{- end }}
       }
       {{- end }}
       {{- if and (eq (.Values.events.enabled | toString) "true" ) (eq (len .Values.events.sink) 0 ) }}
       sink "stderr" {
-        name = "all-events"
+        name = "default"
         description = "All events sent to stderr (default sink)"
         event_types = ["*"]
         format = "hclog-json"
