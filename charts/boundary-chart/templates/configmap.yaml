@@ -125,14 +125,15 @@ data:
       sysevents_enabled = {{ .Values.events.sysevents }}
       {{- range $stderr_sink := .Values.events.sink.stderr }}
       sink "stderr" {
-        name = {{ $stderr_sink.name }}
-        description = {{ $stderr_sink.description }}
+        name = {{ $stderr_sink.name | quote }}
+        description = {{ $stderr_sink.description | quote  }}
         event_types = {{ $stderr_sink.event_types }}
-        format = {{ $stderr_sink.format | default "hclog-json" }}
+        format = {{ $stderr_sink.format | default "hclog-json" | quote }}
         audit_config {
           audit_filter_overrides {
-          sensitive = "redact"
-          secret = "redact"
+            sensitive = ""
+            secret = "redact"
+          }
         }
       }
       {{- end }}
