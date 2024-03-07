@@ -38,6 +38,32 @@ aead:
     recovery: Ivj8Si8UQBp+Zm2lLbUDTxOGikE8rSo6QihCjWSTXqY=
     worker-auth: 8Aj2j2JpFmY1WdjKcmETyYwUi7njP74MLVXWNov4rZ8=
 
+events:
+  # Specifies whether to enable events stanza
+  enabled: false
+
+  # Select whether or not to enable audit events
+  audit: false
+  # Select whether or not to enable observations events
+  observations: false
+  # Select whether or not to enable sysevents
+  sysevents: false
+
+  # Specifies sink configs
+  sink: {}
+    # # Specifies stderr sink configs
+    # stderr:
+    #   - name: "audit"
+    #     description: "audit stderr sink"
+    #     event_types: "[\"audit\"]"
+    #     format: "hclog-json"
+    #     # audit_config parameters only required for audit events
+    #     audit_filter_overrides:
+    #       # Specifies the filter operation to apply to fields that are classified as secret e.g "encrypt", "hmac-sha256", "redact"
+    #       secret: "redact"
+    #       # Specifies the filter operation to apply to fields that are classified as sensitive e.g "encrypt", "hmac-sha256", "redact"
+    #       sensitive: "redact"
+
 vault:
   enabled: false
   # Use form `protocol://fqdn:port`
