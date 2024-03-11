@@ -51,18 +51,24 @@ events:
 
   # Specifies sink configs
   sink: {}
-    # # Specifies stderr sink configs
-    # stderr:
-    #   - name: "audit"
-    #     description: "audit stderr sink"
-    #     event_types: "[\"audit\"]"
-    #     format: "hclog-json"
-    #     # audit_config parameters only required for audit events
-    #     audit_filter_overrides:
-    #       # Specifies the filter operation to apply to fields that are classified as secret e.g "encrypt", "hmac-sha256", "redact"
-    #       secret: "redact"
-    #       # Specifies the filter operation to apply to fields that are classified as sensitive e.g "encrypt", "hmac-sha256", "redact"
-    #       sensitive: "redact"
+    # - name: "audit"
+    #   # specifies the type of sink. Can be stderr or file
+    #   type: "stderr"
+    #   description: "audit stderr sink"
+    #   event_types: "[\"audit\"]"
+    #   # For audit events only cloudevents-json seem to work
+    #   format: "cloudevents-json"
+    #   # specifies a set of predicates for including an event in the sink. If any filter matches, the event will be included.
+    #   # it works as OR condition
+    #   allow_filters:
+    #     - "\"/data/request_info/path\" contains \":authenticate\""
+    #     - "\"/data/request_info/path\" contains \":authorize-session\""
+    #   # audit_config parameters only required for audit events
+    #   audit_filter_overrides:
+    #     # Specifies the filter operation to apply to fields that are classified as secret e.g "encrypt", "hmac-sha256", "redact"
+    #     secret: "redact"
+    #     # Specifies the filter operation to apply to fields that are classified as sensitive e.g "encrypt", "hmac-sha256", "redact"
+    #     sensitive: "redact"
 
 vault:
   enabled: false

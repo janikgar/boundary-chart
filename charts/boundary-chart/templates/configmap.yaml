@@ -52,16 +52,34 @@ data:
       audit_enabled = {{ .Values.events.audit }}
       observations_enabled = {{ .Values.events.observations }}
       sysevents_enabled = {{ .Values.events.sysevents }}
-      {{- range $stderr_sink := .Values.events.sink.stderr }}
-      sink "stderr" {
-        name = {{ $stderr_sink.name | quote }}
-        description = {{ $stderr_sink.description | quote  }}
-        event_types = {{ $stderr_sink.event_types }}
-        format = {{ $stderr_sink.format | default "hclog-json" | quote }}
-        {{- if (and (hasKey $stderr_sink "audit_filter_overrides")) }}
+      {{- range $sink := .Values.events.sink }}
+      sink {
+        type = {{ $sink.type | default "stderr" | quote }}
+        name = {{ $sink.name | quote }}
+        description = {{ $sink.description | quote  }}
+        event_types = {{ $sink.event_types }}
+        {{- if (and (hasKey $sink "evenevent_source_url")) }}
+        evenevent_source_url = {{ $sink.evenevent_source_url }}
+        {{- end }}
+        {{- if (and (hasKey $sink "allow_filters")) }}
+        allow_filters = [
+          {{- range $filter := $sink.allow_filters }}
+          {{ $filter | quote }},
+          {{- end }}
+        ]
+        {{- end }}
+        {{- if (and (hasKey $sink "deny_filters")) }}
+        deny_filters = [
+          {{- range $filter := $sink.deny_filters }}
+          {{ $filter | quote }},
+          {{- end }}
+        ]
+        {{- end }}
+        format = {{ $sink.format | default "hclog-json" | quote }}
+        {{- if (and (hasKey $sink "audit_filter_overrides")) }}
         audit_config {
           audit_filter_overrides {
-            {{- range $k, $v := $stderr_sink.audit_filter_overrides }}
+            {{- range $k, $v := $sink.audit_filter_overrides }}
             {{ $k }} = {{ $v | quote }}
             {{- end }}
           }
@@ -70,8 +88,9 @@ data:
       }
       {{- end }}
       {{- if and (eq (.Values.events.enabled | toString) "true" ) (eq (len .Values.events.sink) 0 ) }}
-      sink "stderr" {
+      sink {
         name = "default"
+        type = "stderr"
         description = "All events sent to stderr (default sink)"
         event_types = ["*"]
         format = "hclog-json"
@@ -155,16 +174,34 @@ data:
       audit_enabled = {{ .Values.events.audit }}
       observations_enabled = {{ .Values.events.observations }}
       sysevents_enabled = {{ .Values.events.sysevents }}
-      {{- range $stderr_sink := .Values.events.sink.stderr }}
-      sink "stderr" {
-        name = {{ $stderr_sink.name | quote }}
-        description = {{ $stderr_sink.description | quote  }}
-        event_types = {{ $stderr_sink.event_types }}
-        format = {{ $stderr_sink.format | default "hclog-json" | quote }}
-        {{- if (and (hasKey $stderr_sink "audit_filter_overrides")) }}
+      {{- range $sink := .Values.events.sink }}
+      sink {
+        type = {{ $sink.type | default "stderr" | quote }}
+        name = {{ $sink.name | quote }}
+        description = {{ $sink.description | quote  }}
+        event_types = {{ $sink.event_types }}
+        {{- if (and (hasKey $sink "evenevent_source_url")) }}
+        evenevent_source_url = {{ $sink.evenevent_source_url }}
+        {{- end }}
+        {{- if (and (hasKey $sink "allow_filters")) }}
+        allow_filters = [
+          {{- range $filter := $sink.allow_filters }}
+          {{ $filter | quote }},
+          {{- end }}
+        ]
+        {{- end }}
+        {{- if (and (hasKey $sink "deny_filters")) }}
+        deny_filters = [
+          {{- range $filter := $sink.deny_filters }}
+          {{ $filter | quote }},
+          {{- end }}
+        ]
+        {{- end }}
+        format = {{ $sink.format | default "hclog-json" | quote }}
+        {{- if (and (hasKey $sink "audit_filter_overrides")) }}
         audit_config {
           audit_filter_overrides {
-            {{- range $k, $v := $stderr_sink.audit_filter_overrides }}
+            {{- range $k, $v := $sink.audit_filter_overrides }}
             {{ $k }} = {{ $v | quote }}
             {{- end }}
           }
@@ -173,8 +210,9 @@ data:
       }
       {{- end }}
       {{- if and (eq (.Values.events.enabled | toString) "true" ) (eq (len .Values.events.sink) 0 ) }}
-      sink "stderr" {
+      sink {
         name = "default"
+        type = "stderr"
         description = "All events sent to stderr (default sink)"
         event_types = ["*"]
         format = "hclog-json"
