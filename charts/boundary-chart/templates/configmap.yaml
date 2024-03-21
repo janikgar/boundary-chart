@@ -61,6 +61,13 @@ data:
         {{- if (and (hasKey $sink "event_source_url")) }}
         event_source_url = {{ $sink.event_source_url }}
         {{- end }}
+        {{- if (eq $sink.type "file") }}
+        file {
+            {{- range $k, $v := $sink.file }}
+            {{ $k }} = {{ $v | quote }}
+            {{- end }}
+        }
+        {{- end }}
         {{- if (and (hasKey $sink "allow_filters")) }}
         allow_filters = [
           {{- range $filter := $sink.allow_filters }}
@@ -182,6 +189,13 @@ data:
         event_types = {{ $sink.event_types }}
         {{- if (and (hasKey $sink "event_source_url")) }}
         event_source_url = {{ $sink.event_source_url }}
+        {{- end }}
+        {{- if (eq $sink.type "file") }}
+        file {
+            {{- range $k, $v := $sink.file }}
+            {{ $k }} = {{ $v | quote }}
+            {{- end }}
+        }
         {{- end }}
         {{- if (and (hasKey $sink "allow_filters")) }}
         allow_filters = [
