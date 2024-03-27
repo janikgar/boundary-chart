@@ -4,7 +4,7 @@
 
 replicaCount: 1
 
-initialiseBoundary: 
+initialiseBoundary:
   # Whether to create boundary-init container to run database migration
   # This is useful when it's required to avoid running database migration on pod restart
   # Post upgrade re-deploy with `false`
@@ -37,6 +37,17 @@ aead:
     root: D0vmvzf8l+C709nVfEH3hgBCj6IF/1eb9kCTYTtnDVc=
     recovery: Ivj8Si8UQBp+Zm2lLbUDTxOGikE8rSo6QihCjWSTXqY=
     worker-auth: 8Aj2j2JpFmY1WdjKcmETyYwUi7njP74MLVXWNov4rZ8=
+
+gcpckms:
+  enabled: false
+  # gcpckms Documented Here:
+  # https://developer.hashicorp.com/boundary/docs/configuration/kms/gcpckms
+  purpose: root
+  credentials: /usr/boundary/boundary-project-user-creds.json
+  project: boundary-project
+  region: global
+  key_ring: boundary-keyring
+  crypto_key: boundary-key
 
 events:
   # Specifies whether to enable events stanza

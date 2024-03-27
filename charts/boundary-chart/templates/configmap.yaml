@@ -122,7 +122,7 @@ data:
       {{- end }}
     }
     {{- end }}
-    {{- else }}
+    {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
       purpose = "{{ $purpose }}"
@@ -131,6 +131,16 @@ data:
       key = "{{ $key }}"
     }
     {{- end }}
+    {{- end }}
+    {{- if .Values.gcpckms.enabled }}
+    kms "gcpckms" {
+      purpose = "{{ .Values.gcpckms.purpose }}"
+      credentials = "{{ .Values.gcpckms.credentials }}"
+      project = "{{ .Values.gcpckms.project }}"
+      region = "{{ .Values.gcpckms.region }}"
+      key_ring = "{{ .Values.gcpckms.key_ring }}"
+      crypto_key = "{{ .Values.gcpckms.crypto_key }}"
+    }
     {{- end }}
   boundary-config.hcl: |
     disable_mlock = true
@@ -251,7 +261,7 @@ data:
       {{- end }}
     }
     {{- end }}
-    {{- else }}
+    {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
       purpose = "{{ $purpose }}"
@@ -260,4 +270,14 @@ data:
       key = "{{ $key }}"
     }
     {{- end }}
+    {{- end }}
+    {{- if .Values.gcpckms.enabled }}
+    kms "gcpckms" {
+      purpose = "{{ .Values.gcpckms.purpose }}"
+      credentials = "{{ .Values.gcpckms.credentials }}"
+      project = "{{ .Values.gcpckms.project }}"
+      region = "{{ .Values.gcpckms.region }}"
+      key_ring = "{{ .Values.gcpckms.key_ring }}"
+      crypto_key = "{{ .Values.gcpckms.crypto_key }}"
+    }
     {{- end }}
