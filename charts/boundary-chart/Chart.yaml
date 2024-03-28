@@ -3,5 +3,5 @@ name: boundary
 description: A Helm chart for HashiCorp Boundary
 
 type: application
-version: "0.3.10"
+version: "0.3.11"
 appVersion: "0.15.3"

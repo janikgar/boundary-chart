@@ -122,6 +122,7 @@ data:
       {{- end }}
     }
     {{- end }}
+    {{- end }}
     {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
@@ -260,6 +261,7 @@ data:
       tls_skip_verify = true
       {{- end }}
     }
+    {{- end }}
     {{- end }}
     {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
