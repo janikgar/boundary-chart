@@ -205,6 +205,17 @@ volumeMounts: null
   # - mountPath: /boundary/event_logs
   #   name: event-logs
 
+extraContainers: null
+  # - name: sidecar
+  #   image: "sidecar"
+  #   command: [sh, -c]
+  #   args:
+  #     - line1 &&
+  #       line2 
+  #   volumeMounts:
+  #     - name: plugins
+  #       mountPath: /path/to/plugin
+
 nodeSelector: {}
 
 tolerations: []
