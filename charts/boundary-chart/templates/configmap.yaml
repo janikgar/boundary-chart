@@ -105,6 +105,7 @@ data:
       {{- end }}
     }
     {{- end }}
+
     {{- if .Values.vault.enabled }}
     {{- $fqdn := .Values.vault.fqdn }}
     {{- $mountPath := .Values.vault.mountPath }}
@@ -123,6 +124,7 @@ data:
     }
     {{- end }}
     {{- end }}
+
     {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
@@ -133,15 +135,18 @@ data:
     }
     {{- end }}
     {{- end }}
+
     {{- if .Values.gcpckms.enabled }}
+    {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
     kms "gcpckms" {
-      purpose = "{{ .Values.gcpckms.purpose }}"
-      credentials = "{{ .Values.gcpckms.credentials }}"
-      project = "{{ .Values.gcpckms.project }}"
-      region = "{{ .Values.gcpckms.region }}"
-      key_ring = "{{ .Values.gcpckms.key_ring }}"
-      crypto_key = "{{ .Values.gcpckms.crypto_key }}"
+      purpose = "{{ $purpose }}"
+      credentials = "{{ $.Values.gcpckms.credentials }}"
+      project = "{{ $.Values.gcpckms.project }}"
+      region = "{{ $.Values.gcpckms.region }}"
+      key_ring = "{{ $.Values.gcpckms.key_ring }}"
+      crypto_key = "{{ $.Values.gcpckms.crypto_key }}"
     }
+    {{- end }}
     {{- end }}
   boundary-config.hcl: |
     disable_mlock = true
@@ -245,6 +250,7 @@ data:
       {{- end }}
     }
     {{- end }}
+
     {{- if .Values.vault.enabled }}
     {{- $fqdn := .Values.vault.fqdn }}
     {{- $mountPath := .Values.vault.mountPath }}
@@ -263,6 +269,8 @@ data:
     }
     {{- end }}
     {{- end }}
+
+
     {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
@@ -273,13 +281,18 @@ data:
     }
     {{- end }}
     {{- end }}
+    
+    
     {{- if .Values.gcpckms.enabled }}
+    {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
     kms "gcpckms" {
-      purpose = "{{ .Values.gcpckms.purpose }}"
-      credentials = "{{ .Values.gcpckms.credentials }}"
-      project = "{{ .Values.gcpckms.project }}"
-      region = "{{ .Values.gcpckms.region }}"
-      key_ring = "{{ .Values.gcpckms.key_ring }}"
-      crypto_key = "{{ .Values.gcpckms.crypto_key }}"
+      purpose = "{{ $purpose }}"
+      credentials = "{{ $.Values.gcpckms.credentials }}"
+      project = "{{ $.Values.gcpckms.project }}"
+      region = "{{ $.Values.gcpckms.region }}"
+      key_ring = "{{ $.Values.gcpckms.key_ring }}"
+      crypto_key = "{{ $.Values.gcpckms.crypto_key }}"
     }
     {{- end }}
+    {{- end }}
+
