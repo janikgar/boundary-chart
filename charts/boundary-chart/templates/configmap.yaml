@@ -270,6 +270,7 @@ data:
     {{- end }}
     {{- end }}
 
+
     {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
@@ -294,3 +295,4 @@ data:
     }
     {{- end }}
     {{- end }}
+

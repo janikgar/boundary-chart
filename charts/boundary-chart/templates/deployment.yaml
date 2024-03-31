@@ -137,6 +137,9 @@ spec:
               port: api
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+        {{- if .Values.extraContainers }}
+        {{ toYaml .Values.extraContainers | nindent 8}}
+        {{- end }}
       volumes:
         - name: boundary-config
           configMap:
