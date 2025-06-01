@@ -148,6 +148,19 @@ data:
     }
     {{- end }}
     {{- end }}
+
+    {{- if .Values.azurekeyvault.enabled }}
+    {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
+    kms "azurekeyvault" {
+      purpose = "{{ $purpose }}"
+      tenant_id = "{{ $.Values.azurekeyvault.tenant_id }}"
+      client_id = "{{ $.Values.azurekeyvault.client_id }}"
+      client_secret = "{{ $.Values.azurekeyvault.client_secret }}"
+      vault_name = "{{ $.Values.azurekeyvault.vault_name }}"
+      key_name = "{{ $.Values.azurekeyvault.key_name }}"
+    }
+    {{- end }}
+    {{- end }}
   boundary-config.hcl: |
     disable_mlock = true
     log_format    = "standard"
@@ -270,7 +283,6 @@ data:
     {{- end }}
     {{- end }}
 
-
     {{- if .Values.aead.enabled }}
     {{- range $purpose, $key := .Values.aead.keys }}
     kms "aead" {
@@ -281,7 +293,6 @@ data:
     }
     {{- end }}
     {{- end }}
-    
     
     {{- if .Values.gcpckms.enabled }}
     {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
@@ -296,3 +307,15 @@ data:
     {{- end }}
     {{- end }}
 
+    {{- if .Values.azurekeyvault.enabled }}
+    {{- range $i, $purpose := list "root" "recovery" "worker-auth" }}
+    kms "azurekeyvault" {
+      purpose = "{{ $purpose }}"
+      tenant_id = "{{ $.Values.azurekeyvault.tenant_id }}"
+      client_id = "{{ $.Values.azurekeyvault.client_id }}"
+      client_secret = "{{ $.Values.azurekeyvault.client_secret }}"
+      vault_name = "{{ $.Values.azurekeyvault.vault_name }}"
+      key_name = "{{ $.Values.azurekeyvault.key_name }}"
+    }
+    {{- end }}
+    {{- end }}

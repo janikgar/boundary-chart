@@ -49,6 +49,17 @@ gcpckms:
   key_ring: boundary-keyring
   crypto_key: boundary-key
 
+azurekeyvault:
+  enabled: false
+  # azurekeyvault Documented Here:
+  # https://developer.hashicorp.com/boundary/docs/configuration/kms/azurekeyvault 
+  purpose: root
+  tenant_id: "******"
+  client_id: "******"
+  client_secret: "******"
+  vault_name: hc-vault
+  key_name: vault_key
+
 events:
   # Specifies whether to enable events stanza
   enabled: false

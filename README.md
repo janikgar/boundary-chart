@@ -9,8 +9,9 @@ This is a work in progress. Currently, this allows three main configurations of 
 1. AEAD (Dev Mode, static keys)
 2. Vault (requires connection to / installation of HashiCorp Vault)
 3. Google Cloud KMS
+4. Azure Key Vault
 
-Obviously Azure, AWS, and OCI are also configurable KMS sources. These haven't been implemented in this chart yet.
+Obviously AWS, and OCI are also configurable KMS sources. These haven't been implemented in this chart yet.
 
 ## Requirements
 This requires at minimum:
